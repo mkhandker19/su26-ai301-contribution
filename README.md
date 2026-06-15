@@ -4,7 +4,7 @@
 **Student:** Mahin Khandker
 **Issue:** https://github.com/letsencrypt/boulder/issues/8540
 **Fork:** https://github.com/mkhandker19/boulder
-**Status:** Phase II — Complete
+**Status:** Phase III — Complete
 
 ---
 
@@ -192,18 +192,18 @@ This is similar to large-scale codebase refactors done in open-source Go project
 
 ### Unit Tests
 
-- [ ] Test case 1: Existing keygen tests still pass after replacing `rand.Reader` with `nil`
-- [ ] Test case 2: Existing signing tests still pass after the change
-- [ ] Test case 3: No new test failures introduced across the full test suite
+- [x] Existing keygen tests pass after replacing `rand.Reader` with `nil` — confirmed via `go test github.com/letsencrypt/boulder/core`
+- [x] Existing signing tests pass after the change — confirmed via `go test github.com/letsencrypt/boulder/privatekey`
+- [x] No new test failures introduced by the change itself — remaining failures are pre-existing Windows/pkcs11 environment issues
 
 ### Integration Tests
 
-- [ ] Full Boulder integration test suite passes with Docker Compose
-- [ ] Certificate issuance flow works end-to-end with the updated code
+- [ ] Full Boulder integration test suite — requires Docker/Linux environment; not runnable on Windows locally
+- [ ] Certificate issuance flow end-to-end — deferred to CI on PR submission
 
 ### Manual Testing
 
-*To be filled in during Phase III — results of manual testing performed.*
+Ran `go test github.com/letsencrypt/boulder/core` and `go test github.com/letsencrypt/boulder/privatekey` after fixing edge cases — both passed. Ran `go build ./... 2>&1 | grep "crypto/rand.*imported and not used" | grep -v vendor` iteratively until zero output confirmed no unused imports remained. Ran `git grep "rand.Reader"` after replacement to confirm zero matches in boulder source files. Full `go test ./...` was run — remaining failures are pre-existing Windows/pkcs11 build issues unrelated to this change.
 
 ---
 
@@ -216,13 +216,18 @@ Selected issue: `go1.26: remove crypto/rand.Reader argument from all keygen and 
 Set up the local development environment in VS Code. Forked and cloned the boulder repo. Created working branch `fix-issue-8540`. Confirmed `origin` points to fork and added `upstream` pointing to the original boulder repo. Ran `git grep "rand.Reader"` and confirmed the issue is present across 11+ files in `ca/`, `cmd/admin/`, `cmd/ceremony/`, and `cmd/cert-checker/`. Phase II complete.
 
 ### Week 3 Progress
-*To be filled in — finalizing the fix, preparing the PR, self-review.*
+Implemented the full fix on branch `fix-issue-8540`. Used `sed` via Git Bash to bulk-replace all `rand.Reader` arguments with `nil` across every `.go` file. Restored `vendor/` after discovering third-party files were incorrectly modified. Removed unused `"crypto/rand"` imports iteratively using `go build`. Fixed two edge cases in `core/util.go` and `privatekey/privatekey.go` where `nil` caused nil pointer panics — kept `rand.Reader` there since those usages are not keygen/signing arguments. Confirmed key tests pass. Formatted with `gofmt`. Committed and pushed 75 files to the working branch. Phase III complete.
 
 ### Code Changes
 
-- **Files modified:** *To be filled in during Phase III*
-- **Key commits:** *To be filled in during Phase III*
-- **Approach decisions:** *To be filled in during Phase III*
+- **Files modified:** 75 files across `ca/`, `cmd/admin/`, `cmd/ceremony/`, `cmd/cert-checker/`, `core/`, `linter/`, `precert/`, `privatekey/`, `grpc/creds/`, `test/certs/genmtpki/`, and others
+- **Key commit:** [`9a83fddfa`](https://github.com/mkhandker19/boulder/commit/9a83fddfa) — `chore: replace rand.Reader with nil in keygen and signing calls`
+- **Branch:** [`fix-issue-8540`](https://github.com/mkhandker19/boulder/tree/fix-issue-8540)
+- **Approach decisions:**
+  - Used `find . -name "*.go" -exec sed -i 's/rand\.Reader/nil/g' {} +` in Git Bash for bulk replacement
+  - Restored `vendor/` with `git checkout -- vendor/` to avoid modifying third-party dependencies
+  - Kept `rand.Reader` in `core/util.go` and `privatekey/privatekey.go` where it serves as a functional random source rather than an ignorable keygen argument
+  - Removed unused `"crypto/rand"` imports file by file until `go build` returned no unused import errors
 
 ---
 
