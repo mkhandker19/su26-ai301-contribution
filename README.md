@@ -4,7 +4,7 @@
 **Student:** Mahin Khandker
 **Issue:** https://github.com/letsencrypt/boulder/issues/8540
 **Fork:** https://github.com/mkhandker19/boulder
-**Status:** Phase III — Complete
+**Status:** Phase IV — Complete
 
 ---
 
@@ -168,7 +168,7 @@ This is similar to large-scale codebase refactors done in open-source Go project
 7. Re-run `git grep "rand.Reader"` to verify no keygen/signing instances remain.
 
 **Implement:**
-> ⏳ Phase III — not yet started. Changes will be made on branch `fix-issue-8540` and submitted as a PR from `mkhandker19/boulder : fix-issue-8540` → `letsencrypt/boulder : main`.
+> ✅ Phase III — Complete. Changes made on branch `fix-issue-8540` and submitted as PR [#8802](https://github.com/letsencrypt/boulder/pull/8802) from `mkhandker19/boulder : fix-issue-8540` → `letsencrypt/boulder : main`.
 
 **Review:**
 - [ ] Read `CONTRIBUTING.md` in boulder for PR format requirements
@@ -218,6 +218,9 @@ Set up the local development environment in VS Code. Forked and cloned the bould
 ### Week 3 Progress
 Implemented the full fix on branch `fix-issue-8540`. Used `sed` via Git Bash to bulk-replace all `rand.Reader` arguments with `nil` across every `.go` file. Restored `vendor/` after discovering third-party files were incorrectly modified. Removed unused `"crypto/rand"` imports iteratively using `go build`. Fixed two edge cases in `core/util.go` and `privatekey/privatekey.go` where `nil` caused nil pointer panics — kept `rand.Reader` there since those usages are not keygen/signing arguments. Confirmed key tests pass. Formatted with `gofmt`. Committed and pushed 75 files to the working branch. Phase III complete.
 
+### Week 4 Progress
+Opened Pull Request [#8802](https://github.com/letsencrypt/boulder/pull/8802) from `mkhandker19/boulder : fix-issue-8540` into `letsencrypt/boulder : main`. PR description written following the repository's contribution guidelines, referencing `Closes #8540`. PR is currently awaiting maintainer review.
+
 ### Code Changes
 
 - **Files modified:** 75 files across `ca/`, `cmd/admin/`, `cmd/ceremony/`, `cmd/cert-checker/`, `core/`, `linter/`, `precert/`, `privatekey/`, `grpc/creds/`, `test/certs/genmtpki/`, and others
@@ -233,26 +236,27 @@ Implemented the full fix on branch `fix-issue-8540`. Used `sed` via Git Bash to 
 
 ## Pull Request
 
-**PR Link:** *To be added upon submission*
-**PR Description:** *Draft to be added during Phase III*
+**PR Link:** [https://github.com/letsencrypt/boulder/pull/8802](https://github.com/letsencrypt/boulder/pull/8802)
+
+**PR Description:** Replaced all `crypto/rand.Reader` arguments in keygen and signing call sites with `nil` across 75 files, in preparation for Go 1.26 compatibility. Cleaned up resulting unused `"crypto/rand"` imports. Applied `gofmt` formatting. Confirmed existing tests pass.
 
 **Maintainer Feedback:**
-- *To be filled in as feedback is received*
+- *To be filled in as feedback is received — PR currently awaiting review*
 
-**Status:** Not yet submitted
+**Status:** Awaiting review
 
 ---
 
 ## Learnings & Reflections
 
 ### Technical Skills Gained
-*To be filled in upon completion*
+This project significantly improved my understanding of the Go programming language. I learned how Go's standard library cryptographic functions work, specifically how `ecdsa.GenerateKey`, `rsa.GenerateKey`, `rsa.SignPKCS1v15`, `ecdsa.Sign`, and `x509.CreateCertificate` accept a random reader argument and how Go 1.26 changed that behavior. I also got hands-on experience navigating a large, real-world Go codebase, removing unused imports, running `gofmt`, and using `go build` and `go test` to validate changes. Working in Git Bash on Windows while using Go tooling gave me practical experience bridging cross-platform development challenges.
 
 ### Challenges Overcome
-*To be filled in upon completion*
+The hardest part was genuinely understanding the issue before touching any code. At first, "replace `rand.Reader` with `nil`" seemed simple, but understanding *why* Go 1.26 made this change — and more importantly, *which* usages of `rand.Reader` should be replaced versus which ones should be kept — required careful reading of the Go proposal, the issue thread, and the codebase itself. I learned that not every `rand.Reader` in the codebase is a keygen/signing argument; some are used as functional random sources (like in `core/util.go` and `privatekey/privatekey.go`) where replacing with `nil` caused nil pointer panics. Distinguishing between those two categories was the key technical insight of this contribution.
 
 ### What I'd Do Differently Next Time
-*To be filled in upon completion*
+I would be more careful about scoping my bulk find-and-replace commands to exclude the `vendor/` directory from the start. Running `sed` across all `.go` files including third-party dependencies caused unnecessary errors and required an extra `git checkout -- vendor/` to restore them. A more targeted command like `find . -name "*.go" -not -path "./vendor/*" -exec sed -i ...` would have avoided that entirely and kept the diff cleaner from the beginning.
 
 ---
 
