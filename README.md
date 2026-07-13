@@ -201,6 +201,8 @@ Opened PR [#8802](https://github.com/letsencrypt/boulder/pull/8802). Received ma
 
 Addressed all feedback across multiple rounds of review. Rebased branch against upstream multiple times to resolve merge conflicts. Ran full local test suite to verify changes before each push.
 
+Additional feedback received — `aarongable` noted there were still many files with unused `crypto/rand` imports, and that test output files (`test_output.txt`, `test_output_2.txt`) had been accidentally committed. Removed both test output files and removed remaining unused `crypto/rand` imports from `cmd/admin/cert_test.go`, `cmd/admin/key_test.go`, `issuance/cert_test.go`, `sa/sa_test.go`, and `test/load-generator/state.go`. Verified locally with `go test ./...` and `go build ./...` — zero unused import errors. Pushed and awaiting CI approval from maintainer.
+
 ### Code Changes
 
 - **Files modified:** Test files across `ca/`, `cmd/admin/`, `cmd/ceremony/`, `cmd/cert-checker/`, and test helper files
@@ -227,7 +229,7 @@ Addressed all feedback across multiple rounds of review. Rebased branch against 
 - `jsha` requested: omit `CreateCertificate` from this PR as its rand usage depends on the signing algorithm
 - All feedback addressed across multiple rounds of iteration
 
-**Status:** Iterating — awaiting final re-review after latest push
+**Status:** Iterating — latest push addresses unused import feedback, awaiting CI approval and re-review
 
 ---
 
