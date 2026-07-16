@@ -4,7 +4,7 @@
 **Student:** Mahin Khandker
 **Issue:** https://github.com/letsencrypt/boulder/issues/8540
 **Fork:** https://github.com/mkhandker19/boulder
-**Status:** Phase IV — In Progress (Iterating on Maintainer Feedback)
+**Status:** Phase IV — Complete (PR Approved, Awaiting Second Reviewer)
 
 ---
 
@@ -201,7 +201,7 @@ Opened PR [#8802](https://github.com/letsencrypt/boulder/pull/8802). Received ma
 
 Addressed all feedback across multiple rounds of review. Rebased branch against upstream multiple times to resolve merge conflicts. Ran full local test suite to verify changes before each push.
 
-Additional feedback received — `aarongable` noted there were still many files with unused `crypto/rand` imports, and that test output files (`test_output.txt`, `test_output_2.txt`) had been accidentally committed. Removed both test output files and removed remaining unused `crypto/rand` imports from `cmd/admin/cert_test.go`, `cmd/admin/key_test.go`, `issuance/cert_test.go`, `sa/sa_test.go`, and `test/load-generator/state.go`. Verified locally with `go test ./...` and `go build ./...` — zero unused import errors. Pushed and awaiting CI approval from maintainer.
+Additional feedback received — `aarongable` noted there were still many files with unused `crypto/rand` imports, and that test output files (`test_output.txt`, `test_output_2.txt`) had been accidentally committed. Removed both test output files and removed remaining unused `crypto/rand` imports from `cmd/admin/cert_test.go`, `cmd/admin/key_test.go`, `issuance/cert_test.go`, `sa/sa_test.go`, and `test/load-generator/state.go`. Verified locally with `go test ./...` and `go build ./...` — zero unused import errors. Pushed and awaiting CI approval from maintainer. `aarongable` subsequently approved the PR after fixing a broken rebase on their end. PR now has one approval and is awaiting a second reviewer before merge.
 
 ### Code Changes
 
@@ -228,8 +228,9 @@ Additional feedback received — `aarongable` noted there were still many files 
 - `aarongable` requested: restore modified comment, fix import ordering, remove unused imports, revert vendor changes, reduce scope to GenerateKey test calls only
 - `jsha` requested: omit `CreateCertificate` from this PR as its rand usage depends on the signing algorithm
 - All feedback addressed across multiple rounds of iteration
+- `aarongable` fixed a broken rebase on their end, then approved the PR with comment: "Had to fix this up again -- looks like there was a broken rebase instead of a merge -- but it LGTM now."
 
-**Status:** Iterating — latest push addresses unused import feedback, awaiting CI approval and re-review
+**Status:** Approved by `aarongable` ✅ — awaiting second reviewer approval before merge
 
 ---
 
